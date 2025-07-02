@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,8 @@ type UserData struct {
 	numberOfTickets uint
 }
 
+var waitGroup = sync.WaitGroup{}
+
 func main() {
 
 	sayHello()
@@ -29,6 +32,8 @@ func main() {
 
 		if isNameValid && isEmailValid && isuserTicketsValid {
 			bookTicket(userTickets, firstName, lastName, email)
+
+			waitGroup.Add(1)
 			go sendTicket(userTickets, firstName, lastName, email)
 
 			firstNames := getFirstNames()
@@ -52,6 +57,7 @@ func main() {
 			}
 		}
 	}
+	waitGroup.Wait()
 }
 
 func sayHello() {
@@ -124,4 +130,6 @@ func sendTicket(userTickets uint, firstName string, lastName string, email strin
 	fmt.Println("#########################")
 	fmt.Printf("Sending ticket:\n %v to email address %v\n", ticket, email)
 	fmt.Println("#########################")
+
+	waitGroup.Done()
 }
